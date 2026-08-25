@@ -6,6 +6,13 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 board = env.BoardConfig()
 variant = board.get("build.variant")
+# framework-renesas-fsp only ships pre-generated FSP/BSP config and
+# linker files for MINIMA, UNOWIFIR4 and PORTENTA_C33. RMC-RA4M1 is the
+# same R7FA4M1AB silicon and memory map as MINIMA (verified bit-identical
+# clock/BSP config and linker scripts in framework-arduinorenesas-uno),
+# so reuse MINIMA's folder here; framework-arduinorenesas-uno itself
+# still resolves its own variant files using the real "variant" value.
+fsp_pkg_variant = "MINIMA" if board.id == "rmc_ra4m1_20" else variant
 
 env.SConscript("_bare.py")
 
@@ -34,19 +41,19 @@ env.Append(
         join(FRAMEWORK_DIR, "fsp", "src", "r_sce"),
         join(FRAMEWORK_DIR, "fsp", "src", "r_sce", "common"),
         join(FRAMEWORK_DIR, "fsp", "inc", "arm", "CMSIS_5", "CMSIS", "Core", "Include"),
-        join(FRAMEWORK_DIR, "variants", variant),
-        join(FRAMEWORK_DIR, "variants", variant, "includes", "ra_gen"),
-        join(FRAMEWORK_DIR, "variants", variant, "includes", "ra_cfg", "fsp_cfg"),
-        join(FRAMEWORK_DIR, "variants", variant, "includes", "ra_cfg", "fsp_cfg", "bsp"),
-        join(FRAMEWORK_DIR, "variants", variant, "tmp_gen_c_files")
+        join(FRAMEWORK_DIR, "variants", fsp_pkg_variant),
+        join(FRAMEWORK_DIR, "variants", fsp_pkg_variant, "includes", "ra_gen"),
+        join(FRAMEWORK_DIR, "variants", fsp_pkg_variant, "includes", "ra_cfg", "fsp_cfg"),
+        join(FRAMEWORK_DIR, "variants", fsp_pkg_variant, "includes", "ra_cfg", "fsp_cfg", "bsp"),
+        join(FRAMEWORK_DIR, "variants", fsp_pkg_variant, "tmp_gen_c_files")
     ],
     LINKFLAGS=[
         "--specs=nano.specs"
     ],
     LIBPATH=[
-        join(FRAMEWORK_DIR, "variants", variant)
+        join(FRAMEWORK_DIR, "variants", fsp_pkg_variant)
     ],
-    LDSCRIPT_PATH=join(FRAMEWORK_DIR, "variants", variant, "fsp.ld")
+    LDSCRIPT_PATH=join(FRAMEWORK_DIR, "variants", fsp_pkg_variant, "fsp.ld")
 )
 
 libs = []
@@ -110,6 +117,6 @@ libs.append(env.BuildLibrary(
 # Build the glue files
 libs.append(env.BuildLibrary(
     join("$BUILD_DIR", "FSPFrameworkVariant"),
-    join(FRAMEWORK_DIR, "variants", variant, "tmp_gen_c_files")))
+    join(FRAMEWORK_DIR, "variants", fsp_pkg_variant, "tmp_gen_c_files")))
 
 env.Prepend(LIBS=libs)

@@ -6,6 +6,10 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 board = env.BoardConfig()
 variant = board.get("build.variant")
+# framework-cmsis-renesas ships no dedicated variant folder for
+# RMC-RA4M1 either; reuse MINIMA's (same R7FA4M1AB silicon), same as
+# in fsp.py.
+cmsis_pkg_variant = "MINIMA" if board.id == "rmc_ra4m1_20" else variant
 
 env.SConscript("_bare.py")
 
@@ -35,9 +39,9 @@ env.Append(
         "--specs=nano.specs"
     ],
     LIBPATH=[
-        join(FRAMEWORK_DIR, "variants", variant)
+        join(FRAMEWORK_DIR, "variants", cmsis_pkg_variant)
     ],
-    LDSCRIPT_PATH=join(FRAMEWORK_DIR, "variants", variant, "fsp.ld")
+    LDSCRIPT_PATH=join(FRAMEWORK_DIR, "variants", cmsis_pkg_variant, "fsp.ld")
 )
 
 if board.id == "portenta_c33":

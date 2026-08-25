@@ -7,7 +7,7 @@
       "-DARDUINO_MINIMA",
       "-DARDUINO_UNOR4_MINIMA",
       "-DARDUINO_ARCH_RENESAS_UNO",
-      "-DARDUINO_RMC-RA4M1",
+      "-DARDUINO_RMC_RA4M1_20",
       "-DCFG_TUSB_MCU=OPT_MCU_RAXXX"
     ],
     "core": "arduino",
@@ -27,7 +27,7 @@
     "variant": "rmc_ra4m1_20"
   },
   "debug": {
-    "jlink_device": "ra4m1",
+    "jlink_device": "R7FA4M1AB",
     "svd_path": "R7FA4M1AB.svd"
   },
   "frameworks": [
